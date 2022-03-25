@@ -353,11 +353,10 @@ class ContractContract(models.Model):
             final_invoices_values.append(
                 self._finalize_invoice_values(invoice_values)
             )
-        import ipdb; ipdb.set_trace()
+        #import ipdb; ipdb.set_trace()
         invoices = self.env['account.move'].create(final_invoices_values)
-
-        for invoice in invoices:
-            invoice._onchange_partner_id()
+        #for invoice in invoices:
+        #    invoice._onchange_partner_id()
         return invoices
 
     @api.model
