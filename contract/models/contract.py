@@ -6,6 +6,7 @@
 # Copyright 2018 ACSONE SA/NV
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
+from socket import IP_DROP_MEMBERSHIP
 from odoo import api, fields, models
 from odoo.exceptions import ValidationError,UserError
 from odoo.tools.translate import _
@@ -259,7 +260,7 @@ class ContractContract(models.Model):
             'invoice_date': date_invoice,
             'date': date_invoice,
             'auto_post':self.auto_post,
-            'type': invoice_type,
+            'move_type': invoice_type,
             'journal_id': journal.id,
             'invoice_origin': '%s - %s' % (self.name or '', self.code or ''),
             'company_id': self.company_id.id,
@@ -324,7 +325,7 @@ class ContractContract(models.Model):
             name = invoice_line.name
             analytic_account_id = invoice_line.analytic_account_id
             price_unit = invoice_line.price_unit
-            invoice_line.invoice_id = new_invoice
+            invoice_line.move_id = new_invoice
             invoice_line._onchange_product_id()
             invoice_line.update(
                 {
@@ -352,7 +353,11 @@ class ContractContract(models.Model):
             final_invoices_values.append(
                 self._finalize_invoice_values(invoice_values)
             )
+        import ipdb; ipdb.set_trace()
         invoices = self.env['account.move'].create(final_invoices_values)
+
+        for invoice in invoices:
+            invoice._onchange_partner_id()
         return invoices
 
     @api.model
